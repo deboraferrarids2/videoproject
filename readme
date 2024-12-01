@@ -1,0 +1,6 @@
+Check test coverage
+
+coverage report -m --include="app/*"
+
+Endpoint for admin
+http://localhost:8000/get-orders
