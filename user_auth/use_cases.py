@@ -65,3 +65,23 @@ def handle_login(data):
 
     return {'message': 'Login successful.', 'token': token}, 200
 
+from flask_jwt_extended import decode_token
+from flask import current_app
+
+def validate_user_token(token):
+    """
+    Valida o token JWT enviado na requisição e retorna o user_id.
+    """
+    try:
+        # Decodifica o token usando a chave secreta configurada no app
+        decoded_token = decode_token(token, allow_expired=False)
+        user_id = decoded_token.get("user_id")
+
+        if not user_id:
+            raise ValueError("Invalid token: user_id not found.")
+
+        return user_id
+
+    except Exception as e:
+        current_app.logger.error(f"Token validation failed: {e}")
+        raise ValueError("Invalid or expired token.")

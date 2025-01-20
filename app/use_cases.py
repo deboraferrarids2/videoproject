@@ -11,6 +11,7 @@ import uuid
 import subprocess
 from app.models import db, ProcessedVideo
 from app.utils import upload_to_s3
+from user_auth.use_cases import validate_user_token
 
 logger = logging.getLogger(__name__)
 
@@ -21,57 +22,12 @@ PROCESSED_FOLDER = '/tmp/processed'
 os.makedirs(UPLOAD_FOLDER, exist_ok=True)
 os.makedirs(PROCESSED_FOLDER, exist_ok=True)
 
-def handle_register(data):
-    email = data.get('email')
-    password = data.get('password')
-
-    if not email or not password:
-        return {'message': 'Email and password are required.'}, 400
-
-    if User.query.filter_by(email=email).first():
-        return {'message': 'User already exists.'}, 409
-
-    hashed_password = generate_password_hash(password, method='pbkdf2:sha256', salt_length=8)
-    new_user = User(email=email, password=hashed_password)
-    db.session.add(new_user)
-    db.session.commit()
-
-    token = jwt.encode(
-        {
-            'sub': str(new_user.id),
-            'user_id': new_user.id,
-            'exp': datetime.datetime.utcnow() + datetime.timedelta(hours=1),
-        },
-        SECRET_KEY,
-        algorithm='HS256'
-    )
-
-    return {'message': 'User registered successfully.', 'token': token}, 201
-
-def handle_login(data):
-    email = data.get('email')
-    password = data.get('password')
-
-    if not email or not password:
-        return {'message': 'Email and password are required.'}, 400
-
-    user = User.query.filter_by(email=email).first()
-    if not user or not check_password_hash(user.password, password):
-        return {'message': 'Invalid credentials.'}, 401
-
-    token = jwt.encode(
-        {
-            'sub': str(user.id),
-            'user_id': user.id,
-            'exp': datetime.datetime.utcnow() + datetime.timedelta(hours=1),
-        },
-        SECRET_KEY,
-        algorithm='HS256'
-    )
-
-    return {'message': 'Login successful.', 'token': token}, 200
-
-def handle_upload_video(user_id, file):
+def handle_upload_video(token, file):
+    try:
+        # Valida o token e obtém o user_id
+        user_id = validate_user_token(token)
+    except ValueError as e:
+        return {"message": str(e)}, 401
     filename = secure_filename(file.filename)
     video_path = os.path.join(UPLOAD_FOLDER, f"{uuid.uuid4()}_{filename}")
     file.save(video_path)
@@ -99,16 +55,25 @@ def handle_upload_video(user_id, file):
 
     return {'message': 'Video processed successfully.', 'download_url': download_url}, 200
 
-def handle_download_file(filename):
+def handle_download_file(token, filename):
     try:
-        return send_file(
-            os.path.join(PROCESSED_FOLDER, filename),
-            as_attachment=True
-        )
+        # Valida o token e obtém o user_id
+        validate_user_token(token)
+    except ValueError as e:
+        return {"message": str(e)}, 401
+        
+    try:
+        file_path = os.path.join(PROCESSED_FOLDER, filename)
+        return send_file(file_path, as_attachment=True)
     except FileNotFoundError:
         return {'message': 'File not found.'}, 404
-
-def handle_list_videos(user_id):
+    
+def handle_list_videos(token):
+    try:
+        # Valida o token e obtém o user_id
+        user_id = validate_user_token(token)
+    except ValueError as e:
+        return {"message": str(e)}, 401
     try:
         videos = ProcessedVideo.query.filter_by(user_id=user_id).all()
         response = [

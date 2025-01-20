@@ -17,20 +17,21 @@ app_routes = Blueprint('app_routes', __name__)
 @app_routes.route('/upload-video', methods=['POST'])
 @jwt_required()
 def upload_video():
-    user_id = get_jwt_identity()
-    file = request.files.get('video')
+    token = request.headers.get("Authorization").replace("Bearer ", "")
+    file = request.files.get("video")
     if not file:
         return jsonify({'message': 'No video file provided'}), 400
 
-    return handle_upload_video(user_id, file)
+    return handle_upload_video(token, file)
 
 @app_routes.route('/download/<path:filename>', methods=['GET'])
 @jwt_required()
 def download_file(filename):
-    return handle_download_file(filename)
+    token = request.headers.get("Authorization").replace("Bearer ", "")
+    return handle_download_file(token, filename)
 
 @app_routes.route('/list-videos', methods=['GET'])
 @jwt_required()
 def list_videos():
-    user_id = get_jwt_identity()
-    return handle_list_videos(user_id)
+    token = request.headers.get("Authorization").replace("Bearer ", "")
+    return handle_list_videos(token)
