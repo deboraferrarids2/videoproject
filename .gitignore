@@ -1,10 +1,35 @@
 # Ignorar a pasta tmp e todo o conteúdo
 /tmp/
 
-# Compiled Python files
-*.pyc
-*.pyo
-*.pyd
-
-# Bytecode cache directories
+# Byte-compiled / optimized / DLL files
 __pycache__/
+*.py[cod]
+*$py.class
+
+# Virtual environment directories
+env/
+venv/
+
+# Distribution / packaging
+.Python
+build/
+dist/
+*.egg-info/
+*.egg
+
+# Logs and temporary files
+*.log
+*.tmp
+*.swp
+
+# Database and migrations
+*.sqlite3
+instance/
+migrations/
+
+# IDE configurations
+.idea/
+.vscode/
+
+# Secret files
+*.env
