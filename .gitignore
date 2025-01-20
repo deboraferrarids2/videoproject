@@ -1,2 +1,10 @@
 # Ignorar a pasta tmp e todo o conteúdo
 /tmp/
+
+# Compiled Python files
+*.pyc
+*.pyo
+*.pyd
+
+# Bytecode cache directories
+__pycache__/
