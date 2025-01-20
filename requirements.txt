@@ -2,3 +2,21 @@ flask
 requests
 requests-mock
 coverage
+
+flask-sqlalchemy
+werkzeug
+pyjwt
+bcrypt
+flask-migrate
+psycopg2-binary
+
+
+# Mensageria e tarefas assíncronas
+celery==5.3.4
+redis==5.0.0
+
+# Armazenamento no AWS S3
+boto3==1.28.4
+
+ffmpeg-python
+flask_jwt_extended
