@@ -9,4 +9,4 @@ if __name__ == "__main__":
 
 @app.route('/', methods=['GET'])
 def get():
-    return f"hello"
+    return f"Video Project API"

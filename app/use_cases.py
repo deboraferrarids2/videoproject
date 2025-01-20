@@ -9,7 +9,7 @@ from werkzeug.utils import secure_filename
 from flask import jsonify, send_file
 import uuid
 import subprocess
-from app.models import User, db, ProcessedVideo
+from app.models import db, ProcessedVideo
 from app.utils import upload_to_s3
 
 logger = logging.getLogger(__name__)
