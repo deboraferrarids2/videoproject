@@ -3,7 +3,8 @@ from flask_jwt_extended import jwt_required, get_jwt_identity
 from app.use_cases import (
     handle_upload_video,
     handle_download_file,
-    handle_list_videos
+    handle_list_videos,
+    handle_get_video
 )
 import logging
 
@@ -13,6 +14,7 @@ logger = logging.getLogger(__name__)
 
 app_routes = Blueprint('app_routes', __name__)
 
+CELERY_SECRET_TOKEN='your_secure_token_here'
 
 @app_routes.route('/upload-video', methods=['POST'])
 @jwt_required()
@@ -35,3 +37,9 @@ def download_file(filename):
 def list_videos():
     token = request.headers.get("Authorization").replace("Bearer ", "")
     return handle_list_videos(token)
+
+@app_routes.route('/get-video/<int:pk>/', methods=['GET'])
+@jwt_required()
+def get_video(pk):
+    token = request.headers.get("Authorization").replace("Bearer ", "")
+    return handle_get_video(token, pk)

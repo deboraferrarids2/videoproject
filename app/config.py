@@ -5,6 +5,7 @@ class Config:
     SECRET_KEY = os.getenv('SECRET_KEY', 'your_secret_key_here')
     DATABASE_URL = os.getenv('DATABASE_URL', 'sqlite:///data.db')
     CELERY_BROKER_URL = os.getenv('CELERY_BROKER_URL', 'redis://localhost:6379/0')
+    CELERY_SECRET_TOKEN = os.getenv('CELERY_SECRET_TOKEN', 'your_secure_token_here')
     AWS_S3_BUCKET = os.getenv('AWS_S3_BUCKET', 'video-processor')
     DEBUG = os.getenv('DEBUG', 'False').lower() in ['true', '1']
 
