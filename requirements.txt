@@ -2,6 +2,7 @@ flask
 requests
 requests-mock
 coverage
+flask-testing
 
 flask-sqlalchemy
 werkzeug

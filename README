@@ -1,0 +1,4 @@
+pytest app/tests/test_app.py --disable-warnings -v
+
+coverage run --source=app --omit=app/tests/* -m pytest --disable-warnings
+coverage report -m
