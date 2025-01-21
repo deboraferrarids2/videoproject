@@ -4,9 +4,9 @@ metadata:
   name: app-service
 spec:
   selector:
-    app: video-processor
+    app: app
   ports:
   - protocol: TCP
     port: 80
-    targetPort: 5000
-  type: LoadBalancer
+    targetPort: 8000
+  type: NodePort

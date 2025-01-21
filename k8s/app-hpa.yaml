@@ -1,81 +1,62 @@
 apiVersion: apps/v1
 kind: Deployment
 metadata:
-  name: app-deployment
+  name: app
   labels:
-    app: video-processor
+    app: app
 spec:
   replicas: 2
   selector:
     matchLabels:
-      app: video-processor
+      app: app
   template:
     metadata:
       labels:
-        app: video-processor
+        app: app
     spec:
       containers:
-      - name: video-processor-app
-        image: your-docker-image:latest
+      - name: app
+        image: deboraferrarids2/app:latest
         ports:
-        - containerPort: 5000
+        - containerPort: 8000
         env:
-        - name: REDIS_HOST
-          value: "redis-service"
+        - name: FLASK_APP
+          value: "app.main"
+        - name: DATABASE_URL
+          value: "postgresql://fiap:fiap@db:5432/videoproject"
+        - name: CELERY_BROKER_URL
+          value: "redis://redis:6379/0"
 ---
 apiVersion: apps/v1
 kind: Deployment
 metadata:
-  name: celery-worker-deployment
+  name: worker
   labels:
-    app: celery-worker
+    app: worker
 spec:
   replicas: 2
   selector:
     matchLabels:
-      app: celery-worker
+      app: worker
   template:
     metadata:
       labels:
-        app: celery-worker
+        app: worker
     spec:
       containers:
-      - name: celery-worker
-        image: your-docker-image:latest
-        command: ["celery", "-A", "tasks", "worker", "--loglevel=info"]
+      - name: worker
+        image: deboraferrarids2/worker:latest
+        command: ["celery", "-A", "app.celery_utils", "worker", "--loglevel=info"]
         env:
-        - name: REDIS_HOST
-          value: "redis-service"
----
-apiVersion: v1
-kind: Service
-metadata:
-  name: app-service
-spec:
-  selector:
-    app: video-processor
-  ports:
-  - protocol: TCP
-    port: 80
-    targetPort: 5000
-  type: LoadBalancer
----
-apiVersion: v1
-kind: Service
-metadata:
-  name: redis-service
-spec:
-  selector:
-    app: redis
-  ports:
-  - protocol: TCP
-    port: 6379
-  type: ClusterIP
+        - name: CELERY_BROKER_URL
+          value: "redis://redis:6379/0"
+        - name: CELERY_RESULT_BACKEND
+          value: "redis://redis:6379/0"
 ---
 apiVersion: apps/v1
 kind: Deployment
 metadata:
-  name: redis-deployment
+  name: redis
   labels:
     app: redis
 spec:
@@ -90,11 +71,36 @@ spec:
     spec:
       containers:
       - name: redis
-        image: redis:6.2
+        image: redis:7.2.1
         ports:
         - containerPort: 6379
 ---
-apiVersion: autoscaling/v2beta2
+apiVersion: v1
+kind: Service
+metadata:
+  name: app-service
+spec:
+  selector:
+    app: app
+  ports:
+  - protocol: TCP
+    port: 80
+    targetPort: 8000
+  type: NodePort
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: redis-service
+spec:
+  selector:
+    app: redis
+  ports:
+  - protocol: TCP
+    port: 6379
+  type: ClusterIP
+---
+apiVersion: autoscaling/v1
 kind: HorizontalPodAutoscaler
 metadata:
   name: app-hpa
@@ -103,12 +109,7 @@ spec:
     apiVersion: apps/v1
     kind: Deployment
     name: app-deployment
-  minReplicas: 2
-  maxReplicas: 10
-  metrics:
-  - type: Resource
-    resource:
-      name: cpu
-      target:
-        type: Utilization
-        averageUtilization: 50
+  minReplicas: 1
+  maxReplicas: 5
+  targetCPUUtilizationPercentage: 80
+

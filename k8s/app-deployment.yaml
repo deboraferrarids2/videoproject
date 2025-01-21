@@ -1,24 +1,24 @@
 apiVersion: apps/v1
 kind: Deployment
 metadata:
-  name: app-deployment
+  name: app
   labels:
-    app: video-processor
+    app: app
 spec:
   replicas: 2
   selector:
     matchLabels:
-      app: video-processor
+      app: app
   template:
     metadata:
       labels:
-        app: video-processor
+        app: app
     spec:
       containers:
-      - name: video-processor-app
-        image: your-docker-image:latest
+      - name: app
+        image: deboraferrarids2/app:latest
         ports:
-        - containerPort: 5000
+        - containerPort: 8000
         env:
         - name: REDIS_HOST
           value: "redis-service"
