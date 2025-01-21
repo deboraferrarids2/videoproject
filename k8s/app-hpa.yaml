@@ -17,6 +17,11 @@ spec:
       containers:
       - name: app
         image: deboraferrarids2/app:latest
+        command: ["/bin/sh", "-c"]
+        args:
+          - |
+            flask db upgrade &&
+            flask run --host=0.0.0.0 --port=8000
         ports:
         - containerPort: 8000
         env:
