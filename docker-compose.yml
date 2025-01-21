@@ -42,7 +42,7 @@ services:
     build:
       context: .
       dockerfile: Dockerfile
-    command: celery -A celery worker --loglevel=info
+    command: celery -A app.celery_utils worker --loglevel=info
     depends_on:
       - redis
       - db

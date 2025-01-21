@@ -1,0 +1,23 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: celery-worker-deployment
+  labels:
+    app: celery-worker
+spec:
+  replicas: 2
+  selector:
+    matchLabels:
+      app: celery-worker
+  template:
+    metadata:
+      labels:
+        app: celery-worker
+    spec:
+      containers:
+      - name: celery-worker
+        image: your-docker-image:latest
+        command: ["celery", "-A", "tasks", "worker", "--loglevel=info"]
+        env:
+        - name: REDIS_HOST
+          value: "redis-service"
