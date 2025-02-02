@@ -17,6 +17,7 @@ services:
       - my_shared_network
     volumes:
       - .:/app
+      - /tmp:/tmp
 
   db:
     image: postgres:15.3
@@ -42,7 +43,7 @@ services:
     build:
       context: .
       dockerfile: Dockerfile
-    command: celery -A celery worker --loglevel=info
+    command: celery -A app.celery_utils worker --loglevel=info
     depends_on:
       - redis
       - db
@@ -51,6 +52,8 @@ services:
       CELERY_RESULT_BACKEND: redis://redis:6379/0
     volumes:
       - .:/app
+      - /tmp:/tmp
+
     networks:
       - my_shared_network
 
