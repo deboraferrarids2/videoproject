@@ -22,3 +22,13 @@ spec:
         env:
         - name: REDIS_HOST
           value: "redis-service"
+        volumeMounts:
+        - mountPath: /app/data
+          name: app-storage
+        - mountPath: /tmp/uploads
+          name: app-storage
+          subPath: uploads
+      volumes:
+      - name: app-storage
+        persistentVolumeClaim:
+          claimName: app-storage
