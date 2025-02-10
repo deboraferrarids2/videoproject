@@ -2,7 +2,8 @@ version: '3.7'
 
 services:
   app:
-    build: .
+    #build: .
+    image: deboraferrarids2/app:latest
     command: ["./entrypoint.sh", "flask", "run", "--host=0.0.0.0", "--port=8000"]
     ports:
       - "8000:8000"
@@ -40,9 +41,10 @@ services:
       - my_shared_network
 
   worker:
-    build:
-      context: .
-      dockerfile: Dockerfile
+    image:  deboraferrarids2/worker:latest
+    # build:
+    #   context: .
+    #   dockerfile: Dockerfile
     command: celery -A app.celery_utils worker --loglevel=info
     depends_on:
       - redis
